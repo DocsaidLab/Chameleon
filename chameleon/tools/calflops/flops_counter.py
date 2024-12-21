@@ -171,9 +171,9 @@ def calculate_flops(model,
     params = calculate_flops_pipline.get_total_params()
 
     if print_results:
-        return_print = calculate_flops_pipline.print_model_pipline(units=output_unit,
-                                                                   precision=output_precision,
-                                                                   print_detailed=print_detailed)
+        calculate_flops_pipline.print_model_pipline(units=output_unit,
+                                                    precision=output_precision,
+                                                    print_detailed=print_detailed)
 
     calculate_flops_pipline.end_flops_calculate()
 
