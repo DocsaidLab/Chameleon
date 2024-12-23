@@ -2,7 +2,10 @@ import warnings
 
 from torch.optim.lr_scheduler import _LRScheduler
 
+from ...registry import OPTIMIZERS
 
+
+@OPTIMIZERS.register_module()
 class PolynomialLRWarmup(_LRScheduler):
 
     def __init__(

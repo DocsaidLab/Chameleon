@@ -3,12 +3,14 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 
+from ...registry import LAYERS
 from ..components import GAP
 from ..power_module import PowerModule
 
 __all__ = ['VAE']
 
 
+@LAYERS.register_module()
 class VAE(PowerModule):
 
     def __init__(self, in_channels: int, out_channels: int, do_pooling: bool = False):

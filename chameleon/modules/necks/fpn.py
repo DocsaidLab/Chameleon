@@ -1,14 +1,15 @@
-from copy import deepcopy
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import torch
 import torch.nn as nn
 
-from ...base import PowerModule, build_block
+from ...base import PowerModule
+from ...registry import BLOCKS, NECKS
 
 __all__ = ['FPN']
 
 
+@NECKS.register_module()
 class FPN(PowerModule):
 
     def __init__(
@@ -17,8 +18,8 @@ class FPN(PowerModule):
         out_channels: int,
         extra_layers: int = 0,
         out_indices: Optional[List[int]] = None,
-        norm: Optional[Union[dict, nn.Module]] = None,
-        act: Optional[Union[dict, nn.Module]] = None,
+        norm: Optional[dict] = None,
+        act: Optional[dict] = None,
         upsample_mode: str = 'bilinear',
         use_dwconv: bool = False,
     ) -> None:
@@ -36,10 +37,10 @@ class FPN(PowerModule):
             out_indices (Optional[List[int]], optional):
                 A list of integers indicating the indices of the feature maps to
                 output. If None, all feature maps are output. Defaults to None.
-            norm Optional[Union[dict, nn.Module]]:
+            norm Optional[dict]:
                 Optional normalization module or dictionary of its parameters.
                 Defaults to None.
-            act Optional[Union[dict, nn.Module]]:
+            act Optional[dict]:
                 Optional activation function or dictionary of its parameters.
                 Defaults to None.
             upsample_mode (str, optional):
@@ -75,14 +76,16 @@ class FPN(PowerModule):
             in_channels = in_channels_list[i] if i < num_in_features else in_channels_list[-1]
             if in_channels != out_channels:
                 self.conv1x1s.append(
-                    build_block(
-                        "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
-                        in_channels=in_channels,
-                        out_channels=out_channels,
-                        kernel=1,
-                        stride=1,
-                        padding=0,
-                        norm=deepcopy(norm),
+                    BLOCKS.build(
+                        {
+                            'name': "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
+                            'in_channels': in_channels,
+                            'out_channels': out_channels,
+                            'kernel': 1,
+                            'stride': 1,
+                            'padding': 0,
+                            'norm': norm,
+                        }
                     )
                 )
             else:
@@ -90,30 +93,35 @@ class FPN(PowerModule):
         self.conv1x1s = nn.ModuleList(self.conv1x1s)
 
         self.smooth3x3s = nn.ModuleList([
-            build_block(
-                "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
-                in_channels=out_channels,
-                out_channels=out_channels,
-                kernel=3,
-                stride=1,
-                padding=1,
-                norm=deepcopy(norm),
-                act=deepcopy(act),
+            BLOCKS.build(
+                {
+                    'name': "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
+                    'in_channels': out_channels,
+                    'out_channels': out_channels,
+                    'kernel': 3,
+                    'stride': 1,
+                    'padding': 1,
+                    'norm': norm,
+                    'act': act,
+
+                }
             )
             for _ in range(num_out_features - 1)
         ])
 
         if extra_layers > 0:
             self.extra_conv_downs = nn.ModuleList([
-                build_block(
-                    "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
-                    in_channels=in_channels_list[-1],
-                    out_channels=in_channels_list[-1],
-                    kernel=3,
-                    stride=2,
-                    padding=1,
-                    norm=getattr(nn, norm.__class__.__name__)(in_channels_list[-1]) if norm is not None else None,
-                    act=deepcopy(act),
+                BLOCKS.build(
+                    {
+                        'name': "Conv2dBlock" if not use_dwconv else "SeparableConv2dBlock",
+                        'in_channels': in_channels_list[-1],
+                        'out_channels': in_channels_list[-1],
+                        'kernel': 3,
+                        'stride': 2,
+                        'padding': 1,
+                        'norm': {'name': norm['name'], 'num_features': in_channels_list[-1]} if norm is not None else None,
+                        'act': act,
+                    }
                 )
                 for _ in range(extra_layers)
             ])
@@ -176,8 +184,8 @@ class FPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm=nn.BatchNorm2d(num_features=out_channels, momentum=0.003),
-            act=nn.ReLU(False),
+            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003},
+            act={'name': 'ReLU', 'inplace': True},
             upsample_mode=upsample_mode,
             use_dwconv=True,
         )
@@ -196,8 +204,8 @@ class FPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm=nn.BatchNorm2d(num_features=out_channels, momentum=0.003),
-            act=nn.ReLU(False),
+            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003},
+            act={'name': 'ReLU', 'inplace': True},
             upsample_mode=upsample_mode,
             use_dwconv=False,
         )

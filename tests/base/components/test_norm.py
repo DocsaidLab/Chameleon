@@ -7,7 +7,7 @@ from torch.nn.modules.instancenorm import (InstanceNorm1d, InstanceNorm2d,
 from torch.nn.modules.normalization import (CrossMapLRN2d, GroupNorm,
                                             LayerNorm, LocalResponseNorm)
 
-from chameleon.base.components import LayerNorm2d, build_component
+from chameleon import LayerNorm2d, build_component
 
 NORM_CLASSES = {
     'BatchNorm1d': BatchNorm1d,

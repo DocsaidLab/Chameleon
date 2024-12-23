@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from chameleon.base.components import AWingLoss, WeightedAWingLoss
+from chameleon import AWingLoss, WeightedAWingLoss
 
 
 @pytest.fixture(scope='module')

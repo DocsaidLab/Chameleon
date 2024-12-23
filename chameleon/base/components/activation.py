@@ -1,5 +1,3 @@
-from typing import Union
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,6 +9,8 @@ from torch.nn.modules.activation import (CELU, ELU, GELU, GLU, Hardsigmoid,
                                          Softmax2d, Softmin, Softplus,
                                          Softshrink, Softsign, Tanh,
                                          Tanhshrink, Threshold)
+
+from ...registry import COMPONENTS
 
 __all__ = [
     'Swish', 'Hsigmoid', 'Hswish', 'StarReLU', 'SquaredReLU',
@@ -95,3 +95,7 @@ class SquaredReLU(nn.Module):
 
 # Ref: https://pytorch.org/docs/stable/generated/torch.nn.SiLU.html
 Swish = nn.SiLU
+
+
+for k in __all__:
+    COMPONENTS.register_module(name=k, module=globals()[k])

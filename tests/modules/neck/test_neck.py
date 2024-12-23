@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from chameleon.modules import build_neck, list_necks
+from chameleon import build_neck
 
 INPUT1 = [
     torch.rand(1, 16, 80, 80),
@@ -12,7 +12,7 @@ INPUT1 = [
 data = [
     (
         INPUT1,
-        {'name': 'fpn', 'in_channels_list': [16, 32, 64], 'out_channels': 24},
+        {'name': 'FPN', 'in_channels_list': [16, 32, 64], 'out_channels': 24},
         {'out_shapes': [
             torch.Size((1, 24, 80, 80)),
             torch.Size((1, 24, 40, 40)),
@@ -21,7 +21,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'bifpn', 'in_channels_list': [16, 32, 64], 'out_channels': 24, 'extra_layers': 2},
+        {'name': 'BiFPN', 'in_channels_list': [16, 32, 64], 'out_channels': 24, 'extra_layers': 2},
         {'out_shapes': [
             torch.Size((1, 24, 80, 80)),
             torch.Size((1, 24, 40, 40)),
@@ -32,7 +32,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'bifpn', 'in_channels_list': [16, 32, 64], 'out_channels': 24, 'out_indices': [0, 1, 2]},
+        {'name': 'BiFPN', 'in_channels_list': [16, 32, 64], 'out_channels': 24, 'out_indices': [0, 1, 2]},
         {'out_shapes': [
             torch.Size((1, 24, 80, 80)),
             torch.Size((1, 24, 40, 40)),
@@ -51,20 +51,3 @@ def test_build_backbone(in_tensor, build_kwargs, expected):
     else:
         out_shapes = outs.shape
     assert out_shapes == expected['out_shapes']
-
-
-data = [
-    (
-        '',
-        ['fpn', 'bifpn', 'bifpns']
-    ),
-    (
-        '*bi*',
-        ['bifpn', 'bifpns']
-    ),
-]
-
-
-@ pytest.mark.parametrize('filter,expected', data)
-def test_list_backbones(filter, expected):
-    assert list_necks(filter) == expected

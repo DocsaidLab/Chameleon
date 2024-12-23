@@ -1,10 +1,8 @@
-from copy import deepcopy
 
 import torch
 import torch.nn as nn
 
-from ..blocks import build_block
-from ..components import Hswish
+from ...registry import BLOCKS, COMPONENTS, LAYERS
 from ..power_module import PowerModule
 
 __all__ = ['ASPP']
@@ -16,6 +14,7 @@ __doc__ = """
 """
 
 
+@LAYERS.register_module()
 class ASPP(PowerModule):
 
     ARCHS = {
@@ -30,7 +29,7 @@ class ASPP(PowerModule):
         self,
         in_channels: int,
         out_channels: int,
-        output_activate: nn.Module = nn.ReLU(),
+        out_act: dict = {'name': 'ReLU', 'inplace': True},
     ):
         """
         Constructor for the ASPP class.
@@ -40,35 +39,39 @@ class ASPP(PowerModule):
                 Number of input channels.
             out_channels (int):
                 Number of output channels.
-            output_activate (nn.Module, optional):
-                Activation function to apply to the output. Defaults to nn.ReLU().
+            out_act (dict, optional):
+                Activation function for the output layer. Defaults to ReLU.
         """
         super().__init__()
         self.layers = nn.ModuleDict()
         for dilate_name, cfg in self.ARCHS.items():
             ksize, stride, padding, dilation, use_hs = cfg
-            layer = build_block(
-                'Conv2dBlock',
-                in_channels=in_channels,
-                out_channels=in_channels,
-                kernel=ksize,
-                stride=stride,
-                padding=padding,
-                dilation=dilation,
-                norm=nn.BatchNorm2d(in_channels),
-                act=Hswish() if use_hs else nn.ReLU(),
+            layer = BLOCKS.build(
+                {
+                    'name': 'Conv2dBlock',
+                    'in_channels': in_channels,
+                    'out_channels': in_channels,
+                    'kernel': ksize,
+                    'stride': stride,
+                    'padding': padding,
+                    'dilation': dilation,
+                    'norm': COMPONENTS.build({'name': 'BatchNorm2d', 'num_features': in_channels}),
+                    'act': COMPONENTS.build({'name': 'Hswish' if use_hs else 'ReLU'}),
+                }
             )
             self.layers[dilate_name] = layer
 
-        self.output_layer = build_block(
-            'Conv2dBlock',
-            in_channels=in_channels * len(self.layers),
-            out_channels=out_channels,
-            kernel=1,
-            stride=1,
-            padding=0,
-            norm=nn.BatchNorm2d(out_channels),
-            act=deepcopy(output_activate),
+        self.output_layer = BLOCKS.build(
+            {
+                'name': 'Conv2dBlock',
+                'in_channels': in_channels * len(self.layers),
+                'out_channels': out_channels,
+                'kernel': 1,
+                'stride': 1,
+                'padding': 0,
+                'norm': COMPONENTS.build({'name': 'BatchNorm2d', 'num_features': out_channels}),
+                'act':  COMPONENTS.build(out_act),
+            }
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
