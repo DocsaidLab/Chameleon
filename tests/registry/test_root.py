@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from torchmetrics.metric import Metric
 
 from chameleon import ASPP, FPN, AdamW, AWingLoss, Conv2dBlock, GPUNet
