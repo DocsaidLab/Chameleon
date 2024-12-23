@@ -1,17 +1,17 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import torch
 import torch.nn as nn
 
-from ..components import build_component
+from ...registry import COMPONENTS, LAYERS
 
 
+@LAYERS.register_module()
 class WeightedSum(nn.Module):
-
     def __init__(
         self,
         input_size: int,
-        act: Optional[Union[dict, nn.Module]] = None,
+        act: Optional[dict] = None,
         requires_grad: bool = True,
     ) -> None:
         """
@@ -20,7 +20,7 @@ class WeightedSum(nn.Module):
         Args:
             input_size (int):
                 The number of inputs to be summed.
-            act Optional[Union[dict, nn.Module]]:
+            act Optional[dict]:
                 Optional activation function or dictionary of its parameters.
                 Defaults to None.
             requires_grad (bool, optional):
@@ -36,8 +36,7 @@ class WeightedSum(nn.Module):
         if act is None:
             self.relu = nn.Identity()
         else:
-            self.relu = act if isinstance(act, nn.Module) \
-                else build_component(**act)
+            self.relu = act if isinstance(act, nn.Module) else COMPONENTS.build(act)
         self.epsilon = 1e-4
 
     def forward(self, x: List[torch.Tensor]) -> torch.Tensor:

@@ -1,11 +1,14 @@
 from typing import List
 
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import MultiStepLR, _LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler
 
-__all__ = ['WrappedLRScheduler', 'MultiStepLRWarmUp']
+from ...registry import OPTIMIZERS
+
+__all__ = ['WrappedLRScheduler']
 
 
+@OPTIMIZERS.register_module()
 class WrappedLRScheduler(_LRScheduler):
     """
     Gradually warm-up(increasing) learning rate in optimizer.
@@ -63,19 +66,3 @@ class WrappedLRScheduler(_LRScheduler):
             self._last_lr = self.after_scheduler.get_last_lr()
         else:
             return super().step()
-
-
-def MultiStepLRWarmUp(
-    optimizer: Optimizer,
-    milestones: List[int],
-    warmup_milestone: int,
-    gamma: float = 0.1,
-    last_epoch: int = -1,
-    interval='step',
-    verbose: bool = False,
-):
-    scheduler = MultiStepLR(optimizer, milestones, gamma, last_epoch, verbose)
-    return WrappedLRScheduler(optimizer,
-                              warmup_milestone,
-                              after_scheduler=scheduler,
-                              interval=interval)

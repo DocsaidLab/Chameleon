@@ -8,6 +8,8 @@ from torch.nn.modules.pooling import (AdaptiveAvgPool1d, AdaptiveAvgPool2d,
                                       AvgPool1d, AvgPool2d, AvgPool3d,
                                       MaxPool1d, MaxPool2d, MaxPool3d)
 
+from ...registry import COMPONENTS
+
 __all__ = [
     'AvgPool1d', 'AvgPool2d', 'AvgPool3d', 'MaxPool1d',
     'MaxPool2d', 'MaxPool3d', 'AdaptiveAvgPool1d', 'AdaptiveAvgPool2d',
@@ -44,3 +46,7 @@ class GMP(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Apply global max pooling on the input tensor."""
         return self.pool(x)
+
+
+for k in __all__:
+    COMPONENTS.register_module(name=k, module=globals()[k])

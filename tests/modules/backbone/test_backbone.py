@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from chameleon import build_backbone, list_backbones
+from chameleon import build_backbone
 
 INPUT1 = torch.rand(1, 3, 320, 320)
 INPUT2 = torch.rand(1, 6, 224, 224)
@@ -9,7 +9,7 @@ data = [
     # gpunet
     (
         INPUT1,
-        {'name': 'gpunet_0', },
+        {'name': 'GPUNet_0', },
         {
             'out_shapes': [
                 torch.Size([1, 32, 160, 160]),
@@ -22,7 +22,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_1', 'out_indices': [0, 2, 3]},
+        {'name': 'GPUNet_1', 'out_indices': [0, 2, 3]},
         {
             'out_shapes': [
                 torch.Size([1, 24, 160, 160]),
@@ -33,7 +33,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_2', 'out_indices': [0, 1, 2]},
+        {'name': 'GPUNet_2', 'out_indices': [0, 1, 2]},
         {
             'out_shapes': [
                 torch.Size([1, 32, 160, 160]),
@@ -44,7 +44,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_p0'},
+        {'name': 'GPUNet_p0'},
         {
             'out_shapes': [
                 torch.Size([1, 32, 160, 160]),
@@ -57,7 +57,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_p1'},
+        {'name': 'GPUNet_p1'},
         {
             'out_shapes': [
                 torch.Size([1, 32, 160, 160]),
@@ -70,7 +70,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_d1'},
+        {'name': 'GPUNet_d1'},
         {
             'out_shapes': [
                 torch.Size([1, 33, 160, 160]),
@@ -83,7 +83,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_d2', 'out_indices': [3, 4]},
+        {'name': 'GPUNet_d2', 'out_indices': [3, 4]},
         {
             'out_shapes': [
                 torch.Size([1, 272, 20, 20]),
@@ -93,7 +93,7 @@ data = [
     ),
     (
         INPUT1,
-        {'name': 'gpunet_d2', 'out_indices': [-1]},
+        {'name': 'GPUNet_d2', 'out_indices': [-1]},
         {
             'out_shapes': [torch.Size([1, 384, 10, 10])]
         }
@@ -110,17 +110,3 @@ def test_build_backbone(in_tensor, build_kwargs, expected):
     else:
         out_shapes = outs.shape
     assert out_shapes == expected['out_shapes']
-
-
-data = [
-    (
-        '*gpunet*',
-        ['gpunet_0', 'gpunet_1', 'gpunet_2', 'gpunet_p0',
-            'gpunet_p1', 'gpunet_d1', 'gpunet_d2']
-    ),
-]
-
-
-@ pytest.mark.parametrize('filter,expected', data)
-def test_list_backbones(filter, expected):
-    assert list_backbones(filter) == expected

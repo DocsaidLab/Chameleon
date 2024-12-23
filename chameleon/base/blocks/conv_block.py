@@ -3,10 +3,11 @@ from typing import Optional, Tuple, Union
 import torch
 import torch.nn as nn
 
-from ..components import build_component
+from ...registry import BLOCKS, COMPONENTS
 from ..power_module import PowerModule
 
 
+@BLOCKS.register_module()
 class SeparableConv2dBlock(PowerModule):
 
     def __init__(
@@ -17,10 +18,10 @@ class SeparableConv2dBlock(PowerModule):
         stride: Union[int, Tuple[int, int]] = 1,
         padding: Union[int, Tuple[int, int]] = 1,
         bias: bool = False,
-        inner_norm: Optional[Union[dict, nn.Module]] = None,
-        inner_act: Optional[Union[dict, nn.Module]] = None,
-        norm: Optional[Union[dict, nn.Module]] = None,
-        act: Optional[Union[dict, nn.Module]] = None,
+        inner_norm: Optional[dict] = None,
+        inner_act: Optional[dict] = None,
+        norm: Optional[dict] = None,
+        act: Optional[dict] = None,
         init_type: str = 'normal',
     ):
         """
@@ -41,13 +42,13 @@ class SeparableConv2dBlock(PowerModule):
                 Whether to include a bias term in the convolutional layer.
                 Noted: if normalization layer is not None, bias will always be set to False.
                 Defaults to False.
-            inner_norm (dict or nn.Module, optional):
+            inner_norm (dict, optional):
                 Configuration of normalization layer between dw and pw layer. Defaults to None.
-            inner_act (dict or nn.Module, optional):
+            inner_act (dict, optional):
                 Configuration of activation layer between dw and pw layer. Defaults to None.
-            norm (dict or nn.Module, optional):
+            norm (dict, optional):
                 Configuration of normalization layer after pw layer. Defaults to None.
-            act (dict or nn.Module, optional):
+            act (dict, optional):
                 Configuration of activation layer after pw layer. Defaults to None.
             init_type (str, optional):
                 Initialization method for the model parameters. Defaults to 'normal'.
@@ -77,13 +78,13 @@ class SeparableConv2dBlock(PowerModule):
             bias=bias,
         )
         if inner_norm is not None:
-            self.block['inner_norm'] = build_component(**inner_norm) if isinstance(inner_norm, dict) else inner_norm
+            self.block['inner_norm'] = COMPONENTS.build(inner_norm) if isinstance(inner_norm, dict) else inner_norm
         if inner_act is not None:
-            self.block['inner_act'] = build_component(**inner_act) if isinstance(inner_act, dict) else inner_act
+            self.block['inner_act'] = COMPONENTS.build(inner_act) if isinstance(inner_act, dict) else inner_act
         if norm is not None:
-            self.block['norm'] = build_component(**norm) if isinstance(norm, dict) else norm
+            self.block['norm'] = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
         if act is not None:
-            self.block['act'] = build_component(**act) if isinstance(act, dict) else act
+            self.block['act'] = COMPONENTS.build(act) if isinstance(act, dict) else act
         self.initialize_weights_(init_type)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -92,8 +93,8 @@ class SeparableConv2dBlock(PowerModule):
         return x
 
 
+@BLOCKS.register_module()
 class Conv2dBlock(PowerModule):
-
     def __init__(
         self,
         in_channels: Union[float, int],
@@ -105,8 +106,8 @@ class Conv2dBlock(PowerModule):
         groups: int = 1,
         bias: bool = False,
         padding_mode: str = 'zeros',
-        norm: Union[dict, nn.Module] = None,
-        act: Union[dict, nn.Module] = None,
+        norm: Optional[dict] = None,
+        act: Optional[dict] = None,
         init_type: str = 'normal',
     ):
         """
@@ -136,13 +137,13 @@ class Conv2dBlock(PowerModule):
             padding_mode (str, optional):
                 Options = {'zeros', 'reflect', 'replicate', 'circular'}.
                 Defaults to 'zeros'.
-            norm (Union[dict, nn.Module], optional):
+            norm (Optional[dict], optional):
                 normalization layer or a dictionary of arguments for building a
                 normalization layer. Default to None.
-            act (Union[dict, nn.Module], optional):
+            act (Optional[dict], optional):
                 Activation function or a dictionary of arguments for building an
                 activation function. Default to None.
-            pool (Union[dict, nn.Module], optional):
+            pool (Optional[dict], optional):
                 pooling layer or a dictionary of arguments for building a pooling
                 layer. Default to None.
             init_type (str):
@@ -180,9 +181,9 @@ class Conv2dBlock(PowerModule):
             padding_mode=padding_mode,
         )
         if norm is not None:
-            self.block['norm'] = build_component(**norm) if isinstance(norm, dict) else norm
+            self.block['norm'] = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
         if act is not None:
-            self.block['act'] = build_component(**act) if isinstance(act, dict) else act
+            self.block['act'] = COMPONENTS.build(act) if isinstance(act, dict) else act
 
         self.initialize_weights_(init_type)
 

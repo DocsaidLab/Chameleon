@@ -10,6 +10,8 @@ from torch.nn.modules.instancenorm import (InstanceNorm1d, InstanceNorm2d,
 from torch.nn.modules.normalization import (CrossMapLRN2d, GroupNorm,
                                             LayerNorm, LocalResponseNorm)
 
+from ...registry import COMPONENTS
+
 __all__ = [
     'BatchNorm1d', 'BatchNorm2d', 'BatchNorm3d', 'SyncBatchNorm', 'InstanceNorm1d',
     'InstanceNorm2d', 'InstanceNorm3d', 'CrossMapLRN2d', 'GroupNorm', 'LayerNorm',
@@ -42,3 +44,7 @@ class LayerNorm2d(nn.LayerNorm):
                          self.weight, self.bias, self.eps)
         x = x.permute(0, 3, 1, 2)
         return x
+
+
+for k in __all__:
+    COMPONENTS.register_module(name=k, module=globals()[k])

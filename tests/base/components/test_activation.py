@@ -2,7 +2,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from chameleon.base.components import SquaredReLU, StarReLU, build_component
+from chameleon import SquaredReLU, StarReLU, build_component
 
 test_build_component_data = [
     ('ReLU', nn.ReLU),
@@ -10,14 +10,14 @@ test_build_component_data = [
     ('Swish', nn.SiLU),
     ('StarReLU', StarReLU),
     ('SquaredReLU', SquaredReLU),
-    ('FakeActivation', ValueError)
+    ('FakeActivation', KeyError)
 ]
 
 
 @pytest.mark.parametrize('name, expected_output', test_build_component_data)
 def test_build_component(name, expected_output):
-    if expected_output == ValueError:
-        with pytest.raises(ValueError):
+    if expected_output == KeyError:
+        with pytest.raises(KeyError):
             build_component(name)
     else:
         assert isinstance(build_component(name), expected_output)

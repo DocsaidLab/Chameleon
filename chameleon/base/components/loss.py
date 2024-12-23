@@ -1,11 +1,12 @@
 import math
-from typing import Union
 
 import torch
 import torch.nn as nn
 from torch.nn.modules.loss import (BCELoss, BCEWithLogitsLoss,
                                    CrossEntropyLoss, CTCLoss, KLDivLoss,
                                    L1Loss, MSELoss, SmoothL1Loss)
+
+from ...registry import COMPONENTS
 
 __all__ = [
     'AWingLoss', 'WeightedAWingLoss',
@@ -139,3 +140,7 @@ class LogCoshDiceLoss(nn.Module):
     def forward(self, input, target):
         dice_loss = self.dice_loss(input, target)
         return torch.log(torch.cosh(dice_loss))
+
+
+for k in __all__:
+    COMPONENTS.register_module(name=k, module=globals()[k])

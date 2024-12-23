@@ -1,8 +1,7 @@
 import pytest
 import torch
 
-from chameleon.base.components.activation import Hswish
-from chameleon.base.layers import ASPP
+from chameleon import ASPP
 
 
 @pytest.fixture
@@ -20,7 +19,7 @@ def test_aspp_layer(input_tensor):
     assert output.size() == (1, out_channels, 32, 32)
 
     # Test with Hswish activation function
-    aspp_layer = ASPP(in_channels, out_channels, output_activate=Hswish())
+    aspp_layer = ASPP(in_channels, out_channels, out_act={'name': 'Hswish'})
     output = aspp_layer(input_tensor)
     assert output.size() == (1, out_channels, 32, 32)
 

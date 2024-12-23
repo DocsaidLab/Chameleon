@@ -6,7 +6,10 @@ from torchmetrics.metric import Metric
 from torchmetrics.text import EditDistance
 from torchmetrics.utilities.data import dim_zero_cat
 
+from ..registry import METRICS
 
+
+@METRICS.register_module()
 class NormalizedLevenshteinSimilarity(Metric):
     """
     Normalized Levenshtein Similarity (NLS) is a metric that computes the

@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Function
 
+from ...registry import LAYERS
 from ..power_module import PowerModule
 
 __all__ = ['GradientReversalLayer']
@@ -24,6 +25,7 @@ class RevGrad(Function):
 revgrad = RevGrad.apply
 
 
+@LAYERS.register_module()
 class GradientReversalLayer(PowerModule):
 
     def __init__(self, warm_up=4000):

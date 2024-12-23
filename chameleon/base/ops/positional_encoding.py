@@ -2,9 +2,12 @@ import math
 
 import torch
 
+from ...registry import OPS
+
 __all__ = ['sinusoidal_positional_encoding_1d']
 
 
+@OPS.register_module()
 def sinusoidal_positional_encoding_1d(length, dim):
     """ Sinusoidal positional encoding for non-recurrent neural networks.
         REFERENCES: Attention Is All You Need

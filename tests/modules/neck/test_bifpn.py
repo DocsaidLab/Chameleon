@@ -1,6 +1,6 @@
 import torch
 
-from chameleon.modules.necks import BiFPN, BiFPNs
+from chameleon import BiFPN, BiFPNs
 
 
 def test_bifpn():
