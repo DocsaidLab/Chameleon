@@ -1,3 +1,4 @@
+from functools import partial
 from typing import List, Optional
 
 import torch
@@ -125,45 +126,17 @@ class GPUNet(PowerModule):
             out_indices=out_indices,
         )
 
-    @classmethod
-    def build_gpunet_0(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_0', **kwargs)
-
-    @classmethod
-    def build_gpunet_1(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_1', **kwargs)
-
-    @classmethod
-    def build_gpunet_2(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_2', **kwargs)
-
-    @classmethod
-    def build_gpunet_p0(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_p0', **kwargs)
-
-    @classmethod
-    def build_gpunet_p1(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_p1', **kwargs)
-
-    @classmethod
-    def build_gpunet_d1(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_d1', **kwargs)
-
-    @classmethod
-    def build_gpunet_d2(cls, **kwargs):
-        return cls.build_gpunet(name='gpunet_d2', **kwargs)
-
 
 GPUNETs = {
-    'GPUNet_0': GPUNet.build_gpunet_0,
-    'GPUNet_1': GPUNet.build_gpunet_1,
-    'GPUNet_2': GPUNet.build_gpunet_2,
-    'GPUNet_p0': GPUNet.build_gpunet_p0,
-    'GPUNet_p1': GPUNet.build_gpunet_p1,
-    'GPUNet_d1': GPUNet.build_gpunet_d1,
-    'GPUNet_d2': GPUNet.build_gpunet_d2,
+    'GPUNet_0': partial(GPUNet.build_gpunet, name='gpunet_0'),
+    'GPUNet_1': partial(GPUNet.build_gpunet, name='gpunet_1'),
+    'GPUNet_2': partial(GPUNet.build_gpunet, name='gpunet_2'),
+    'GPUNet_p0': partial(GPUNet.build_gpunet, name='gpunet_p0'),
+    'GPUNet_p1': partial(GPUNet.build_gpunet, name='gpunet_p1'),
+    'GPUNet_d1': partial(GPUNet.build_gpunet, name='gpunet_d1'),
+    'GPUNet_d2': partial(GPUNet.build_gpunet, name='gpunet_d2'),
 }
 
 
 for k, v in GPUNETs.items():
-    BACKBONES.register_module(name=k, module=v)
+    BACKBONES.register_module(name=k, module=v, is_model_builder=True)
