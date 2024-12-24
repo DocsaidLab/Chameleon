@@ -21,7 +21,9 @@ def build_from_cfg(cfg: dict, registry: "Registry") -> Any:
     kwargs = cfg.copy()
     name = kwargs.pop('name')
     obj_cls = registry.get(name)
-    if inspect.isclass(obj_cls) or inspect.ismethod(obj_cls):
+    is_model_builder = registry.is_model_builder(name)
+
+    if inspect.isclass(obj_cls) or is_model_builder:
         obj = obj_cls(**kwargs)
     else:
         obj = obj_cls
@@ -33,6 +35,7 @@ class Registry:
     def __init__(self, name: str):
         self._name = name
         self._module_dict: Dict[str, Type] = dict()
+        self._type_dict: Dict[str, Type] = dict()
 
     def __len__(self):
         return len(self._module_dict)
@@ -73,6 +76,17 @@ class Registry:
 
         return obj_cls
 
+    def is_model_builder(self, key: str) -> bool:
+        if not isinstance(key, str):
+            raise TypeError(f'key must be a str, but got {type(key)}')
+
+        is_model_builder = self._type_dict.get(key, None)
+
+        if is_model_builder is None:
+            raise KeyError(f'{key} is not in the {self.name} registry')
+
+        return is_model_builder
+
     def build(self, cfg: dict) -> Any:
         return build_from_cfg(cfg, registry=self)
 
@@ -80,7 +94,8 @@ class Registry:
         self,
         module: Type,
         module_name: Optional[Union[str, List[str]]] = None,
-        force: bool = False
+        force: bool = False,
+        is_model_builder: bool = False,
     ) -> None:
         if not callable(module):
             raise TypeError(f'module must be a callable, but got {type(module)}')
@@ -94,12 +109,14 @@ class Registry:
                 existed_module = self.module_dict[name]
                 raise KeyError(f'{name} is already registered in {self.name} at {existed_module.__module__}')
             self._module_dict[name] = module
+            self._type_dict[name] = is_model_builder
 
     def register_module(
         self,
         name: str = None,
         force: bool = False,
         module: Optional[Type] = None,
+        is_model_builder: bool = False,
     ) -> Union[type, Callable]:
 
         if not (name is None or isinstance(name, str)):
@@ -110,12 +127,12 @@ class Registry:
 
         # use it as a normal method: x.register_module(module=SomeClass)
         if module is not None:
-            self._register_module(module=module, module_name=name, force=force)
+            self._register_module(module=module, module_name=name, force=force, is_model_builder=is_model_builder)
             return module
 
         # use it as a decorator: @x.register_module()
         def _register(module):
-            self._register_module(module=module, module_name=name, force=force)
+            self._register_module(module=module, module_name=name, force=force, is_model_builder=is_model_builder)
             return module
 
         return _register
