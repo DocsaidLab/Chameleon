@@ -67,6 +67,10 @@ class SeparableConv2dBlock(PowerModule):
             groups=in_channels,
             bias=False,
         )
+        if inner_norm is not None:
+            self.inner_norm = COMPONENTS.build(inner_norm) if isinstance(inner_norm, dict) else inner_norm
+        if inner_act is not None:
+            self.inner_act = COMPONENTS.build(inner_act) if isinstance(inner_act, dict) else inner_act
         self.pw_conv = nn.Conv2d(
             in_channels,
             out_channels,
@@ -75,10 +79,6 @@ class SeparableConv2dBlock(PowerModule):
             padding=0,
             bias=bias,
         )
-        if inner_norm is not None:
-            self.inner_norm = COMPONENTS.build(inner_norm) if isinstance(inner_norm, dict) else inner_norm
-        if inner_act is not None:
-            self.inner_act = COMPONENTS.build(inner_act) if isinstance(inner_act, dict) else inner_act
         if norm is not None:
             self.norm = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
         if act is not None:
