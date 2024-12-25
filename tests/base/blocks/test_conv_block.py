@@ -84,7 +84,7 @@ def test_SeparableConv2dBlock_build_component():
     ]
     for norm, tgt in zip(norm_layers, tgt_norms):
         block = SeparableConv2dBlock(64, 64, norm=norm)
-        assert isinstance(block.block['norm'], tgt)
+        assert isinstance(block.norm, tgt)
 
 
 @pytest.fixture
@@ -127,11 +127,13 @@ def test_Conv2dBlock_init_type(input_tensor):
 
 
 def test_Conv2dBlock_all_together(input_tensor):
-    model = Conv2dBlock(in_channels=3, out_channels=16,
-                        kernel=5, stride=2, padding=2, dilation=2, groups=1,
-                        bias=True, padding_mode='reflect',
-                        norm={'name': 'BatchNorm2d', 'num_features': 16, 'momentum': 0.5},
-                        act={'name': 'LeakyReLU', 'negative_slope': 0.1, 'inplace': True},
-                        init_type='uniform')
+    model = Conv2dBlock(
+        in_channels=3, out_channels=16,
+        kernel=5, stride=2, padding=2, dilation=2, groups=1,
+        bias=True, padding_mode='reflect',
+        norm={'name': 'BatchNorm2d', 'num_features': 16, 'momentum': 0.5},
+        act={'name': 'LeakyReLU', 'negative_slope': 0.1, 'inplace': True},
+        init_type='uniform'
+    )
     output = model(input_tensor)
     assert output.shape == (2, 16, 14, 14)

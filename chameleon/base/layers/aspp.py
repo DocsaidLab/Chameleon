@@ -19,10 +19,10 @@ class ASPP(PowerModule):
 
     ARCHS = {
         # ksize, stride, padding, dilation, is_use_hs
-        'DILATE1': [3, 1, 1, 1, True],
-        'DILATE2': [3, 1, 2, 2, True],
-        'DILATE3': [3, 1, 4, 4, True],
-        'DILATE4': [3, 1, 8, 8, True],
+        'dilate_layer1': [3, 1, 1, 1, True],
+        'dilate_layer2': [3, 1, 2, 2, True],
+        'dilate_layer3': [3, 1, 4, 4, True],
+        'dilate_layer4': [3, 1, 8, 8, True],
     }
 
     def __init__(
@@ -43,8 +43,7 @@ class ASPP(PowerModule):
                 Activation function for the output layer. Defaults to ReLU.
         """
         super().__init__()
-        self.layers = nn.ModuleDict()
-        for dilate_name, cfg in self.ARCHS.items():
+        for name, cfg in self.ARCHS.items():
             ksize, stride, padding, dilation, use_hs = cfg
             layer = BLOCKS.build(
                 {
@@ -59,12 +58,12 @@ class ASPP(PowerModule):
                     'act': COMPONENTS.build({'name': 'Hswish' if use_hs else 'ReLU'}),
                 }
             )
-            self.layers[dilate_name] = layer
+            self.add_module(name, layer)
 
         self.output_layer = BLOCKS.build(
             {
                 'name': 'Conv2dBlock',
-                'in_channels': in_channels * len(self.layers),
+                'in_channels': in_channels * len(self.ARCHS),
                 'out_channels': out_channels,
                 'kernel': 1,
                 'stride': 1,
@@ -75,7 +74,7 @@ class ASPP(PowerModule):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        outputs = [layer(x) for layer in self.layers.values()]
+        outputs = [getattr(self, name)(x) for name in self.ARCHS.keys()]
         outputs = torch.cat(outputs, dim=1)
         outputs = self.output_layer(outputs)
         return outputs
