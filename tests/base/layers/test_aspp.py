@@ -25,9 +25,9 @@ def test_aspp_layer(input_tensor):
 
     # Test with different dilation rates
     aspp_layer = ASPP(in_channels, out_channels)
-    aspp_layer.layers['DILATE1'].dilation = (2, 2)
-    aspp_layer.layers['DILATE2'].dilation = (4, 4)
-    aspp_layer.layers['DILATE3'].dilation = (8, 8)
-    aspp_layer.layers['DILATE4'].dilation = (16, 16)
+    aspp_layer.dilate_layer1.dilation = (2, 2)
+    aspp_layer.dilate_layer2.dilation = (4, 4)
+    aspp_layer.dilate_layer3.dilation = (8, 8)
+    aspp_layer.dilate_layer4.dilation = (16, 16)
     output = aspp_layer(input_tensor)
     assert output.size() == (1, out_channels, 32, 32)

@@ -48,5 +48,5 @@ def test_selayer_reduction():
 
     expected_channels = in_channels // reduction
 
-    assert se_layer.fc1.block['conv'].out_channels == expected_channels
-    assert se_layer.fc2.block['conv'].out_channels == in_channels
+    assert se_layer.fc1.conv.out_channels == expected_channels
+    assert se_layer.fc2.conv.out_channels == in_channels

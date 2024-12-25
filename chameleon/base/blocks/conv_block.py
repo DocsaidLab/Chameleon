@@ -58,9 +58,7 @@ class SeparableConv2dBlock(PowerModule):
 
         bias = False if norm is not None else bias
 
-        self.block = nn.ModuleDict()
-
-        self.block['dw_conv'] = nn.Conv2d(
+        self.dw_conv = nn.Conv2d(
             in_channels,
             in_channels,
             kernel_size=kernel,
@@ -69,7 +67,7 @@ class SeparableConv2dBlock(PowerModule):
             groups=in_channels,
             bias=False,
         )
-        self.block['pw_conv'] = nn.Conv2d(
+        self.pw_conv = nn.Conv2d(
             in_channels,
             out_channels,
             kernel_size=1,
@@ -78,18 +76,22 @@ class SeparableConv2dBlock(PowerModule):
             bias=bias,
         )
         if inner_norm is not None:
-            self.block['inner_norm'] = COMPONENTS.build(inner_norm) if isinstance(inner_norm, dict) else inner_norm
+            self.inner_norm = COMPONENTS.build(inner_norm) if isinstance(inner_norm, dict) else inner_norm
         if inner_act is not None:
-            self.block['inner_act'] = COMPONENTS.build(inner_act) if isinstance(inner_act, dict) else inner_act
+            self.inner_act = COMPONENTS.build(inner_act) if isinstance(inner_act, dict) else inner_act
         if norm is not None:
-            self.block['norm'] = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
+            self.norm = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
         if act is not None:
-            self.block['act'] = COMPONENTS.build(act) if isinstance(act, dict) else act
+            self.act = COMPONENTS.build(act) if isinstance(act, dict) else act
         self.initialize_weights_(init_type)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        for _, m in self.block.items():
-            x = m(x)
+        x = self.dw_conv(x)
+        x = self.inner_norm(x) if hasattr(self, 'inner_norm') else x
+        x = self.inner_act(x) if hasattr(self, 'inner_act') else x
+        x = self.pw_conv(x)
+        x = self.norm(x) if hasattr(self, 'norm') else x
+        x = self.act(x) if hasattr(self, 'act') else x
         return x
 
 
@@ -151,25 +153,27 @@ class Conv2dBlock(PowerModule):
                 Options = {'normal', 'uniform'}
 
         Examples for using norm, act, and pool:
-            1. conv_block = Conv2dBlock(in_channels=3,
-                                        out_channels=12,
-                                        norm=nn.BatchNorm2d(12),
-                                        act=nn.ReLU(),
-                                        pool=nn.AdaptiveAvgPool2d(1))
-            2. conv_block = Conv2dBlock(in_channels=3,
-                                        out_channels=12,
-                                        norm={'name': 'BatchNorm2d', 'num_features': 12},
-                                        act={'name': 'ReLU', 'inplace': True})
+            1. conv_block = Conv2dBlock(
+                    in_channels=3,
+                    out_channels=12,
+                    norm=nn.BatchNorm2d(12),
+                    act=nn.ReLU(),
+                    pool=nn.AdaptiveAvgPool2d(1)
+                )
+            2. conv_block = Conv2dBlock(
+                    in_channels=3,
+                    out_channels=12,
+                    norm={'name': 'BatchNorm2d', 'num_features': 12},
+                    act={'name': 'ReLU', 'inplace': True},
+                )
 
         Attributes:
-            block (nn.ModuleDict): a model block.
+            block (nn.Module): a model block.
         """
         super().__init__()
-        self.block = nn.ModuleDict()
-
         bias = False if norm is not None else bias
 
-        self.block['conv'] = nn.Conv2d(
+        self.conv = nn.Conv2d(
             int(in_channels),
             int(out_channels),
             kernel_size=kernel,
@@ -181,13 +185,14 @@ class Conv2dBlock(PowerModule):
             padding_mode=padding_mode,
         )
         if norm is not None:
-            self.block['norm'] = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
+            self.norm = COMPONENTS.build(norm) if isinstance(norm, dict) else norm
         if act is not None:
-            self.block['act'] = COMPONENTS.build(act) if isinstance(act, dict) else act
+            self.act = COMPONENTS.build(act) if isinstance(act, dict) else act
 
         self.initialize_weights_(init_type)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        for _, m in self.block.items():
-            x = m(x)
+        x = self.conv(x)
+        x = self.norm(x) if hasattr(self, 'norm') else x
+        x = self.act(x) if hasattr(self, 'act') else x
         return x
