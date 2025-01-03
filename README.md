@@ -7,6 +7,7 @@
     <a href=""><img src="https://img.shields.io/badge/python-3.10+-aff.svg"></a>
     <a href="https://github.com/DocsaidLab/Chameleon/releases"><img src="https://img.shields.io/github/v/release/DocsaidLab/Chameleon?color=ffa"></a>
     <a href="https://pypi.org/project/chameleon_docsaid/"><img src="https://img.shields.io/pypi/v/chameleon_docsaid.svg"></a>
+    <a href="https://pypi.org/project/chameleon_docsaid/"><img src="https://img.shields.io/pypi/dm/chameleon_docsaid?color=9cf"></a>
 </p>
 
 ## Introduction
