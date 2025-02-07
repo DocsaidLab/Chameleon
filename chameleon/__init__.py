@@ -4,4 +4,4 @@ from .modules import *
 from .registry import *
 from .tools import *
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
