@@ -69,7 +69,7 @@ class FPN(PowerModule):
         num_out_features = num_in_features + extra_layers
 
         if extra_layers < 0:
-            raise ValueError('extra_layers < 0, which is not invalid.')
+            raise ValueError('extra_layers < 0, which is invalid.')
 
         self.conv1x1s = []
         for i in range(num_out_features):
@@ -184,7 +184,8 @@ class FPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003},
+            norm={'name': 'BatchNorm2d',
+                  'num_features': out_channels, 'momentum': 0.003},
             act={'name': 'ReLU', 'inplace': True},
             upsample_mode=upsample_mode,
             use_dwconv=True,
@@ -204,7 +205,8 @@ class FPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003},
+            norm={'name': 'BatchNorm2d',
+                  'num_features': out_channels, 'momentum': 0.003},
             act={'name': 'ReLU', 'inplace': True},
             upsample_mode=upsample_mode,
             use_dwconv=False,

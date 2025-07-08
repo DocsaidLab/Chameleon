@@ -96,7 +96,7 @@ class BiFPN(PowerModule):
         num_out_features = num_in_features + extra_layers
 
         if extra_layers < 0:
-            raise ValueError('extra_layers < 0, which is not invalid.')
+            raise ValueError('extra_layers < 0, which is invalid.')
 
         # Lateral layers
         conv1x1s = []
@@ -301,7 +301,8 @@ class BiFPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003, 'eps': 1e-4},
+            norm={'name': 'BatchNorm2d', 'num_features': out_channels,
+                  'momentum': 0.003, 'eps': 1e-4},
             act={'name': 'ReLU', 'inplace': False},
             upsample_mode=upsample_mode,
             use_conv=True,
@@ -323,7 +324,8 @@ class BiFPN(PowerModule):
             out_channels=out_channels,
             extra_layers=extra_layers,
             out_indices=out_indices,
-            norm={'name': 'BatchNorm2d', 'num_features': out_channels, 'momentum': 0.003, 'eps': 1e-4},
+            norm={'name': 'BatchNorm2d', 'num_features': out_channels,
+                  'momentum': 0.003, 'eps': 1e-4},
             act={'name': 'ReLU', 'inplace': False},
             upsample_mode=upsample_mode,
             use_conv=False,
