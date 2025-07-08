@@ -21,4 +21,4 @@ for k in __all__:
     OPTIMIZERS.register_module(name=k, force=True, module=globals()[k])
 
 
-__all__ += ['PolynomialLRWarmup', 'WrappedLRScheduler']
+__all__ += ['PolynomialLRWarmup', 'WrappedLRScheduler', 'MultiStepLRWarmUp']
